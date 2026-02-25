@@ -1,0 +1,7 @@
+[files]
+collection = "ManaBox-Collection.csv"
+scryfall_data = "scryfall-cards.json"
+db = "scrybox.db"
+
+[db]
+overwrite_old = true

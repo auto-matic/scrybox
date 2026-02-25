@@ -1,0 +1,22 @@
+[package]
+name = "scrybox"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+rayon = "1.11.0"
+regex = "1.12.2"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+rusqlite = { version = "0.38.0", features = ["bundled"] }
+toml = "1.0.3"
+
+[lib]
+crate-type = ["lib"]
+
+[[bin]]
+name = "data_ingress"
+
+[[bin]]
+name = "frontend"
