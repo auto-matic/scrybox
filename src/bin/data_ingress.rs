@@ -15,6 +15,7 @@ fn main() -> Result<()> {
     print!("Loading collection            ");
     let collection = Collection::load_collection(&config)?;
     println!("✔");
+    println!("    Size: {}", collection.size());
 
     print!("Loading scryfall data         ");
     let scryfall_data = ScryfallData::load_scryfall_data(&config)?;

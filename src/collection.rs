@@ -1,11 +1,13 @@
-use std::{fs, str::FromStr};
+use std::{fs, io, str::FromStr};
 
 use crate::{config::Config, db::ScryboxDB};
 use anyhow::Result;
+use csv::Reader;
 use rayon::prelude::*;
 use regex::Regex;
+use serde::Deserialize;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct CollectionCard {
     binder_name: String,
     binder_type: String,
@@ -19,11 +21,34 @@ pub struct Collection {
 }
 
 impl Collection {
+    pub fn size(&self) -> usize {
+        self.cards.len()
+    }
+    pub fn load_collection(config: &Config) -> Result<Collection> {
+        let collection_str = fs::read_to_string(&config.files.collection)?
+            .replace("Binder Name", "binder_name")
+            .replace("Binder Type", "binder_type")
+            .replace("Quantity", "quantity")
+            .replace("Scryfall ID", "scryfall_id");
+        let mut rdr = Reader::from_reader(collection_str.as_bytes());
+        Ok(Collection {
+            cards: rdr
+                .deserialize()
+                .par_bridge()
+                .filter_map(|r| r.ok())
+                .collect(),
+        })
+    }
+    /*
     pub fn load_collection(config: &Config) -> Result<Collection> {
         let r = Regex::new(r"(?m)^(?P<binder_name>[^,]+),(?P<binder_type>[^,]+),[^,]+,[^,]+,[^,]+,[^,]+,[^,]+,[^,]+,(?P<quantity>[^,]+),[^,]+,(?P<scryfall_id>[^, ]+),").unwrap(); // Compilation of regex has to work
         let collection_str = fs::read_to_string(&config.files.collection)?;
 
         let caps = r.captures_iter(&collection_str);
+        let _caps = r.captures_iter(&collection_str);
+        let caps_len: i32 = _caps.map(|_| 1).sum();
+        let str_len: i32 = collection_str.lines().map(|_| 1).sum();
+        println!("Lines: {}\n Captures: {}", str_len, caps_len);
         let cards: Vec<CollectionCard> = caps
             .par_bridge()
             .map(|m| {
@@ -37,7 +62,7 @@ impl Collection {
             .filter_map(|c: Result<CollectionCard, <i32 as FromStr>::Err>| c.ok())
             .collect();
         Ok(Collection { cards })
-    }
+    }*/
 
     pub fn insert_collection(&self, db: &mut ScryboxDB) -> Result<()> {
         let tx = db.connection.transaction()?;

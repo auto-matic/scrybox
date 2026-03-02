@@ -91,11 +91,11 @@ impl ScryfallData {
 #[derive(Debug, Deserialize)]
 pub struct ScryfallCard {
     id: String,
-    oracle_id: String,
+    oracle_id: Option<String>,
     name: String,
     image_uris: Option<ImageURIs>,
     mana_cost: Option<String>,
-    type_line: String,
+    type_line: Option<String>,
     oracle_text: Option<String>,
     power: Option<String>,
     toughness: Option<String>,
